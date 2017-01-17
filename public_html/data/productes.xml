@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<restaurant>
+
+    <productes>
+    
+        <producte codi="p01">
+            <nom>Plat 1</nom>
+            <preu>8.50</preu>
+            <categoria>Plat</categoria>
+        </producte>
+    
+        <producte codi="p02">
+            <nom>Plat 2</nom>
+            <preu>11.20</preu>
+            <categoria>Plat</categoria>
+        </producte>
+    
+        <producte codi="p03">
+            <nom>Plat 3</nom>
+            <preu>4.30</preu>
+            <categoria>Plat</categoria>
+        </producte>
+    
+        <producte codi="p04">
+            <nom>Plat 4</nom>
+            <preu>7.10</preu>
+            <categoria>Plat</categoria>
+        </producte>
+    
+        <producte codi="p05">
+            <nom>Plat 5</nom>
+            <preu>13.91</preu>
+            <categoria>Plat</categoria>
+        </producte>
+    
+        <producte codi="b01">
+            <nom>Beguda 1</nom>
+            <preu>1.50</preu>
+            <categoria>Beguda</categoria>
+        </producte>
+    
+        <producte codi="b02">
+            <nom>Beguda 2</nom>
+            <preu>2.10</preu>
+            <categoria>Beguda</categoria>
+        </producte>
+    
+    </productes>
+    
+    <taules>
+        <taula codi="1"></taula>
+        <taula codi="2"></taula>
+        <taula codi="3"></taula>
+        <taula codi="4"></taula>
+        <taula codi="5"></taula>
+    </taules>
+    
+</restaurant>
+
