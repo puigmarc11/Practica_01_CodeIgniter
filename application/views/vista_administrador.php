@@ -27,13 +27,13 @@
             </div>
 
 
-            <div class="col-xs-12 <?php echo isset($_SESSION["taula_factura"])?"":"hidden" ?>">
+            <div class="col-xs-12 <?php echo isset($_SESSION["taula_factura"]) ? "" : "hidden" ?>">
 
                 <h3>Productes de la taula</h3>
                 <table id="taulaComanda" class="table table-hover table-bordered">
                     <tr>
-                        <th colspan="4">Taula <?php echo isset($_SESSION["taula_factura"])?$_SESSION["taula_factura"]:"" ?> </th>
-                        
+                        <th colspan="4">Taula <?php echo isset($_SESSION["taula_factura"]) ? $_SESSION["taula_factura"] : "" ?> </th>
+
                     </tr>
                     <tr>
                         <th>Producte</th>
@@ -66,10 +66,24 @@
                         <th><?php echo $total . " €" ?></th>
                     </tr>
                 </table>
-                
-                 <form name='f2' method='post' action="<?php echo site_url('Administrador/generar_factura') ?>">
-                     <input class="btn btn-primary" type="submit" value="Generar Factura" name="generar">
-                </form>
+
+                <?php
+                if ($_SESSION["historic"] == null) {
+                    ?>
+                    <form name='f2' method='post' action="<?php echo site_url('Administrador/generar_factura') ?>">
+                        <input class="btn btn-primary" type="submit" value="Generar Factura" name="generar">
+                    </form>
+                    <?php
+                } else {
+                    ?>
+                    <form name='f2' method='post' action="<?php echo site_url('Administrador/generar_pdf') ?>">
+                        <input class="btn btn-primary" type="submit" value="Imprimir PDF" name="generar">
+                    </form>
+                    <?php
+                }
+                ?>
+
+
 
             </div>
 
@@ -83,7 +97,8 @@
 
                 <?php
                 foreach ($llista_factures as $factura) {
-                    echo "<li><a>" . $factura->data . " --> $factura->total €" . "</a></li>";
+
+                    echo "<li><a href='" . site_url('Administrador/visualitzar_factura/' . $factura->id . '/historic') . "'>" . $factura->data . " --> $factura->total €" . "</a></li>";
                 }
                 ?>
 

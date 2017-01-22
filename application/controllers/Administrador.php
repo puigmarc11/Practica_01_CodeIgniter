@@ -24,6 +24,7 @@ class Administrador extends CI_Controller {
         parent::__construct();
         $this->load->library('session');
         $this->load->helper('cookie');
+        include APPPATH . 'third_party/fpdf/fpdf.php';
 
         if ($this->session->userdata("usuari")["administrador"] == "N" || $this->session->userdata("usuari") == null) {
             $c = $this->session->userdata("controlador");
@@ -51,32 +52,48 @@ class Administrador extends CI_Controller {
         $this->load->template('vista_administrador', $data);
     }
 
-    private function formatar_productes() {
+    private function formatar_productes($id_factura = null) {
 
         $auxProd = array();
         $taula_factura = $this->session->userdata("taula_factura");
 
         if (isset($taula_factura)) {
 
+            if (!$this->session->userdata("historic")) {
 
-            foreach ($this->Comanda->productes_de_la_taula_agrupats($taula_factura) as $row) {
+                foreach ($this->Comanda->productes_de_la_taula_agrupats($taula_factura) as $row) {
 
-                $prod = $this->Producte->get_dades_producte($row["producte"]);
+                    $prod = $this->Producte->get_dades_producte($row["producte"]);
 
-                $auxProd[] = array(
-                    "producte" => $prod["nom"],
-                    "quantitat" => $row["quantitat"],
-                    "preu" => $prod["preu"],
-                );
+                    $auxProd[] = array(
+                        "id_factura" => $id_factura,
+                        "producte" => $prod["nom"],
+                        "quantitat" => $row["quantitat"],
+                        "preu" => $prod["preu"],
+                    );
+                }
+            } else {
+
+                foreach ($this->Factura->get_factura($taula_factura) as $row) {
+
+                    $auxProd[] = array(
+                        "id_factura" => $id_factura,
+                        "producte" => $row->producte,
+                        "quantitat" => $row->quantitat,
+                        "preu" => $row->preu,
+                    );
+                }
             }
         }
 
         return $auxProd;
     }
 
-    public function visualitzar_factura($taula_sel) {
+    public function visualitzar_factura($taula_sel, $historic = null) {
 
         $this->session->set_userdata("taula_factura", $taula_sel);
+        $this->session->set_userdata("historic", $historic);
+
         $this->index();
     }
 
@@ -87,6 +104,8 @@ class Administrador extends CI_Controller {
 
             $this->load->model("Factura");
             $this->load->model("Comanda");
+            $this->load->model("Producte");
+
 
             $factura = array(
                 "taula" => $taula_factura,
@@ -95,12 +114,56 @@ class Administrador extends CI_Controller {
                 "total" => 0,
             );
 
-            $this->Factura->crear_factura($factura);
+            $id = $this->Factura->crear_factura($factura);
+
+            $llista_p_t = $this->formatar_productes($id);
+            $this->Factura->crear_factura_detall($llista_p_t);
             $this->Comanda->modificar_estat_comanda($taula_factura);
         }
 
         $this->session->unset_userdata("taula_factura");
         $this->index();
+    }
+
+    public function generar_pdf() {
+
+        $this->load->model("Factura");
+        $taula_factura = $this->session->userdata("taula_factura");
+        $f = $this->Factura->get_factura($taula_factura);
+
+        $total = 0;
+
+        $pdf = new FPDF();
+        $pdf->AddPage();
+        $pdf->SetFont('Arial', 'B', 14);
+
+        $pdf->Cell(4 * 40, 10, "Data: " . $f[0]->data, 0, 1);
+        $pdf->Cell(4 * 40, 10, "Camarer: " . $f[0]->usuari, 0, 1);
+        $pdf->Cell(4 * 40, 10, "Taula: " . $f[0]->taula, 0, 1);
+         $pdf->Ln();
+
+        $pdf->Cell(40, 10, "Producte", 1, 0);
+        $pdf->Cell(40, 10, "Quantitat", 1, 0, 'R');
+        $pdf->Cell(40, 10, "Preu/Unitat", 1, 0, 'R');
+        $pdf->Cell(40, 10, "Preu", 1, 1, 'R');
+
+        $pdf->SetFont('Arial', '', 12);
+
+        foreach ($f as $row) {
+
+            $pdf->Cell(40, 10, $row->producte, 1, 0);
+            $pdf->Cell(40, 10, "x" . $row->quantitat, 1, 0, 'R');
+            $pdf->Cell(40, 10, $row->preu . chr(128), 1, 0, 'R');
+
+            $total += $row->preu * $row->quantitat;
+
+            $pdf->Cell(40, 10, $row->preu * $row->quantitat . chr(128), 1, 1, 'R');
+        }
+
+        $pdf->Cell(40 * 3, 10, "Total:", 1, 0);
+        $pdf->Cell(40, 10, $total . chr(128), 1, 1, 'R');
+
+        $pdf->Output();
     }
 
 }

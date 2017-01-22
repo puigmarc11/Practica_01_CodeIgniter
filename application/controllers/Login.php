@@ -31,39 +31,51 @@ class Login extends CI_Controller {
 
     public function index() {
         $this->load->view('vista_login');
-       // $this->entrar();
+        // $this->entrar();
     }
 
     public function entrar() {
-
-        $usuari = array(
-            "nom" => "TEST",
-            "cuiner" => "Y",
-            "camarer" => "Y",
-            "administrador" => "Y",
-            "administrador_usuaris" => "Y",
-        );
-        $this->session->set_userdata("usuari", $usuari);
-        redirect("Camarer/index");
-        redirect("Administrador_Usuaris/index");
-
         /*
-          $user_params = array(
-          "nom" => $_POST["nom"],
-          "password" => $_POST["password"],
+          $usuari = array(
+          "nom" => "TEST",
+          "cuiner" => "Y",
+          "camarer" => "Y",
+          "administrador" => "Y",
+          "administrador_usuaris" => "Y",
           );
-
-          $this->load->model('Usuari');
-          $query = $this->Usuari->get_usuari($user_params);
-
-          if ($query->num_rows() === 1) {
-
-          $this->session->set_userdata("usuari", $query->row_array());
-          redirect("Camarer/index");
-          } else {
-          $this->index();
-          }
+          $this->session->set_userdata("usuari", $usuari);
+          //redirect("Camarer/index");
+          //redirect("Administrador_Usuaris/index");
          */
+
+        $user_params = array(
+            "nom" => $_POST["nom"],
+            "password" => $_POST["password"],
+        );
+
+        $this->load->model('Usuari');
+        $query = $this->Usuari->get_usuari($user_params);
+
+        if ($query->num_rows() === 1) {
+
+            $this->session->set_userdata("usuari", $query->row_array());
+
+            $u = $query->row_array();
+
+            if ($u["camarer"] == "Y") {
+                redirect("Camarer/index");
+            } else if ($u["cuiner"] == "Y") {
+                redirect("Cuiner/index");
+            } else if ($u["administrador"] == "Y") {
+                redirect("Administrador/index");
+            } else if ($u["administrador_usuaris"] == "Y") {
+                redirect("Administrador_Usuaris/index");
+            } else {
+                $this->index();
+            }
+        } else {
+            $this->index();
+        }
     }
 
     public function sortir() {

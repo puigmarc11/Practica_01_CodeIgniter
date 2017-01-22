@@ -20,6 +20,27 @@ class Factura extends CI_Model {
 
     public function crear_factura($data) {
         $this->db->insert('factura', $data);
+        $insert_id = $this->db->insert_id();
+
+        return $insert_id;
+    }
+
+    public function crear_factura_detall($data) {
+
+        $this->db->insert_batch('detall_factura', $data);
+    }
+
+    public function get_factura($data) {
+
+        $array = array('factura.id' => $data);
+
+        $this->db->select();
+        $this->db->from('factura');
+        $this->db->join('detall_factura', 'detall_factura.id_factura = factura.id');
+        $this->db->where($array);
+        $query = $this->db->get();
+
+       return $query->result();
     }
 
 }
